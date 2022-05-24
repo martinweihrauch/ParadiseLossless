@@ -59,7 +59,8 @@ namespace PlCompressor.Model
 
         public ushort GetUshortFromByteLookUpTableArray(uint index)
         {
-            return (ushort)(LookupTableBytes[2 * index] << 8 + (LookupTableBytes[2 * index + 1] ));
+            // LITTLE ENDIAN!!
+            return (ushort)(LookupTableBytes[2 * index] + (LookupTableBytes[2 * index + 1] << 8));
         }
 
         private static void CopyStream(Stream input, Stream output, int bytes)

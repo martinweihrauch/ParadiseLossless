@@ -30,7 +30,7 @@ namespace PlCompressor.Helpers.Model
             MagicWord = (ushort)((77 << 8) + 119);
             Version = (ushort)((1 << 8) + 0);
             FileType = 1;
-            HeaderSize =  2 + 2 + 2 + 1 + 1 + 4 + 4 + 4 + 2 + 4 + 4 + 4 +4;
+            HeaderSize =  2 + 2 + 2 + 1 + 1 + 4 + 4 + 4 + 2 + 4 + 4 + 4 + 1 + 1 + 4;
             var bs = new BitStream(stream);
             bs.WriteUnsigned(16, MagicWord);
             bs.WriteUnsigned(16, Version);

@@ -182,16 +182,28 @@ namespace PlCompressor.Output
 
 
                     case (byte)Command.Lookup4Bit:
+                        if(_unchangedInformation[entry.Data].RankInTopNList > 170)
+                        {
+                            Console.WriteLine("Problem");
+                        }
                         _sc.BsData.WriteUnsigned(4, (ulong)_unchangedInformation[entry.Data].RankInTopNList); 
                         _stats.Bits += (ulong)(_bitLengthCommand + 4);
                     break;
                    
                     case (byte)Command.Lookup8Bit:
+                        if (_unchangedInformation[entry.Data].RankInTopNList > 170)
+                        {
+                            Console.WriteLine("Problem");
+                        }
                         _sc.BsData.WriteUnsigned(8, (ulong)(_unchangedInformation[entry.Data].RankInTopNList - 16));
                         _stats.Bits += (ulong)(_bitLengthCommand + 8);
                         break;
                     
                     case (byte)Command.Lookup12Bit:
+                        if (_unchangedInformation[entry.Data].RankInTopNList > 170)
+                        {
+                            Console.WriteLine("Problem");
+                        }
                         _sc.BsData.WriteUnsigned(12, (ulong)(_unchangedInformation[entry.Data].RankInTopNList - 272));
                         _stats.Bits += (ulong)(_bitLengthCommand + 12);
                         break;
@@ -263,6 +275,7 @@ namespace PlCompressor.Output
 
         private void WriteUshortsToStream(List<UnchangedFile> top2048, Stream stream)
         {
+            // Little Endian!!
             foreach(UnchangedFile u in top2048)
             {
                 stream.WriteByte((byte)(u.Value & 0xFF));

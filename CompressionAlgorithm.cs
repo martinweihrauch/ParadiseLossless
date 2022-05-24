@@ -606,7 +606,7 @@ namespace PlCompressor
                         Data = data,
                         Deltas = look.DeltaList,
                         DeltaOffset = 0,
-                        ParameterLength3BitElse8Bit = 1,
+                        ParameterLength3BitElse8Bit = 1, // short length
                         ParameterLengthInBit = _switches.ShortParameterLengthInBits
                     });
                 }
@@ -626,7 +626,7 @@ namespace PlCompressor
                             Data = data,
                             Deltas = look.DeltaList,
                             DeltaOffset = (int)(i * (combinations)),
-                            ParameterLength3BitElse8Bit = 0,
+                            ParameterLength3BitElse8Bit = 0, // long parameter length
                             ParameterLengthInBit = _switches.LongParameterLengthInBits
                         });
                     }

@@ -16,7 +16,7 @@ namespace PlCompressor.Output.Model
 
         public UnchangedFile()
         {
-            RankInTopNList = 0;
+            RankInTopNList = 999999999;
         }
     }
 }

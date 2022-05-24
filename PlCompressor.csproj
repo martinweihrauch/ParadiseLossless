@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\_Github\BitStream\BitStream\SharpBitStream\SharpBitStream.csproj" />
+    <ProjectReference Include="..\BitStream\BitStream\SharpBitStream\SharpBitStream.csproj" />
   </ItemGroup>
 
 </Project>
