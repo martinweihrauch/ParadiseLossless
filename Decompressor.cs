@@ -104,11 +104,10 @@ namespace PlCompressor
                     case (uint)Command.DeltaWestRepeat4Bit:
                         bitLength3 = (uint)sc.BsParameter.ReadUnsigned(1);
                         commandRepetitions = (int)sc.BsParameter.ReadUnsigned(bitLength3 == 1 ? header.ShortParameterLengthInBits + 3 : header.LongParameterLengthInBits);
-                        tempVal = (ushort)output[outputPointer - 1];
                         for (int rep = 0; rep < commandRepetitions; rep++)
                         {
                             int delta = (int)sc.BsData.ReadSigned(4);
-                            output[outputPointer] = (ushort)(tempVal + delta);
+                            output[outputPointer] = (ushort)(output[outputPointer - 1] + delta);
                             outputPointer++;
                         }
                         break;
@@ -116,11 +115,10 @@ namespace PlCompressor
                     case (uint)Command.DeltaWestRepeat8Bit:
                         bitLength3 = (uint)sc.BsParameter.ReadUnsigned(1);
                         commandRepetitions = (int)sc.BsParameter.ReadUnsigned(bitLength3 == 1 ? header.ShortParameterLengthInBits + 3 : header.LongParameterLengthInBits);
-                        tempVal = (ushort)output[outputPointer - 1];
                         for (int rep = 0; rep < commandRepetitions; rep++)
                         {
                             int delta = (int)sc.BsData.ReadSigned(8);
-                            output[outputPointer] = (ushort)(tempVal + delta);
+                            output[outputPointer] = (ushort)(output[outputPointer - 1] + delta);
                             outputPointer++;
                         }
                         break;
@@ -138,11 +136,10 @@ namespace PlCompressor
                     case (uint)Command.DeltaNorthRepeat4Bit:
                         bitLength3 = (uint)sc.BsParameter.ReadUnsigned(1);
                         commandRepetitions = (int)sc.BsParameter.ReadUnsigned(bitLength3 == 1 ? header.ShortParameterLengthInBits + 3 : header.LongParameterLengthInBits);
-                        tempVal = (ushort)output[outputPointer - header.ImageWidth];
                         for (int rep = 0; rep < commandRepetitions; rep++)
                         {
                             int delta = (int)sc.BsData.ReadSigned(4);
-                            output[outputPointer] = (ushort)(tempVal + delta);
+                            output[outputPointer] = (ushort)(output[outputPointer - header.ImageWidth] + delta);
                             outputPointer++;
                         }
                         break;
@@ -150,11 +147,10 @@ namespace PlCompressor
                     case (uint)Command.DeltaNorthRepeat8Bit:
                         bitLength3 = (uint)sc.BsParameter.ReadUnsigned(1);
                         commandRepetitions = (int)sc.BsParameter.ReadUnsigned(bitLength3 == 1 ? header.ShortParameterLengthInBits + 3 : header.LongParameterLengthInBits);
-                        tempVal = (ushort)output[outputPointer - header.ImageWidth];
                         for (int rep = 0; rep < commandRepetitions; rep++)
                         {
                             int delta = (int)sc.BsData.ReadSigned(8);
-                            output[outputPointer] = (ushort)(tempVal + delta);
+                            output[outputPointer] = (ushort)(output[outputPointer - header.ImageWidth] + delta);
                             outputPointer++;
                         }
                         break;
@@ -163,6 +159,7 @@ namespace PlCompressor
                         index = (ushort)sc.BsData.ReadUnsigned(4);
                         if (index > 170)
                         {
+                            CreateProblemList(output);
                             Console.WriteLine("Problem");
                         }
                         output[outputPointer] = sc.GetUshortFromByteLookUpTableArray(index);
@@ -173,12 +170,7 @@ namespace PlCompressor
                         index = (ushort)(sc.BsData.ReadUnsigned(8) + 16);
                         if (index > 170)
                         {
-                            string tempVar = "";
-                            for(var temp = 0; temp < 10000; temp++)
-                            {
-                                tempVar += "\r\n" + output[temp];
-                            }
-
+                            CreateProblemList(output);
 
                             Console.WriteLine("Problem");
                         }
@@ -190,6 +182,7 @@ namespace PlCompressor
                         index = (ushort)(sc.BsData.ReadUnsigned(12) + 272);
                         if (index > 170)
                         {
+                            CreateProblemList(output);
                             Console.WriteLine("Problem");
                         }
                         output[outputPointer] = sc.GetUshortFromByteLookUpTableArray(index);
@@ -211,6 +204,16 @@ namespace PlCompressor
             {
                 outputStream.WriteByte((byte)(output[i] & 0xFF));
                 outputStream.WriteByte((byte)(output[i] >> 8));
+            }
+
+        }
+
+        public static void CreateProblemList(ushort[] output)
+        {
+            string tempVar = "";
+            for (var temp = 0; temp < 10000; temp++)
+            {
+                tempVar += "\r\n" + output[temp];
             }
 
         }
