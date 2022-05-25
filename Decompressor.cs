@@ -164,9 +164,9 @@ namespace PlCompressor
 
                     case (uint)Command.Lookup4Bit:
                         index = (ushort)sc.BsData.ReadUnsigned(4);
-                        if (index > 170)
+                        if (index > 176)
                         {
-                            CreateProblemList(output);
+                            CreateProblemList(output, outputPointer);
                             Console.WriteLine("Problem");
                         }
                         output[outputPointer] = sc.GetUshortFromByteLookUpTableArray(index);
@@ -175,9 +175,9 @@ namespace PlCompressor
 
                     case (uint)Command.Lookup8Bit:
                         index = (ushort)(sc.BsData.ReadUnsigned(8) + 16);
-                        if (index > 170)
+                        if (index > 176)
                         {
-                            CreateProblemList(output);
+                            CreateProblemList(output, outputPointer);
 
                             Console.WriteLine("Problem");
                         }
@@ -187,9 +187,9 @@ namespace PlCompressor
                     
                     case (uint)Command.Lookup12Bit:
                         index = (ushort)(sc.BsData.ReadUnsigned(12) + 272);
-                        if (index > 170)
+                        if (index > 176)
                         {
-                            CreateProblemList(output);
+                            CreateProblemList(output, outputPointer);
                             Console.WriteLine("Problem");
                         }
                         output[outputPointer] = sc.GetUshortFromByteLookUpTableArray(index);
@@ -215,10 +215,11 @@ namespace PlCompressor
 
         }
 
-        public static void CreateProblemList(ushort[] output)
+        public static void CreateProblemList(ushort[] output, uint outputPointer)
         {
+
             string tempVar = "";
-            for (var temp = 0; temp < 10000; temp++)
+            for (var temp = outputPointer - 100; temp < outputPointer; temp++)
             {
                 tempVar += "\r\n" + output[temp];
             }
