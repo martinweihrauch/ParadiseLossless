@@ -111,6 +111,8 @@ namespace PlCompressor
                  * CLONE WEST
                  */ 
 
+                var tempTest = vs[pointer];
+
                 if (switches.CloneWest && vs[pointer] == vs[pointer - 1]) // Clone West?
                 {
                     unchangeable = false;
@@ -225,11 +227,11 @@ namespace PlCompressor
 
 
                 else if (switches.DeltaWest 
-                    && vs[pointer] - vs[pointer - 1] <= 128 
+                    && vs[pointer] - vs[pointer - 1] < 128 
                     && vs[pointer] - vs[pointer - 1] >= -128)  // Delta West
                 {
                     unchangeable = false;
-                    if (vs[pointer] - vs[pointer - 1] <= 8 && vs[pointer] - vs[pointer - 1] >= -8)
+                    if (vs[pointer] - vs[pointer - 1] < 8 && vs[pointer] - vs[pointer - 1] >= -8)
                     {
                         uint pointerBeforeLookWest = pointer;
                         var lookWest = LookAheadDeltaWest(vs, ref pointer, 4);
@@ -253,8 +255,8 @@ namespace PlCompressor
                             {
                                 lookWest.ParameterCount = 1;
                                 CreateCommandEntries(Command.DeltaWestOnce4Bit, lookWest);
-                                lookWest.DeltaList[0] = lookWest.DeltaList[1];
-                                CreateCommandEntries(Command.DeltaWestOnce4Bit, lookWest);
+                                var lookWest2 = new LookAheadReturn() { DeltaList = new List<int>() { lookWest.DeltaList[1] }, ParameterCount = 1 };
+                                CreateCommandEntries(Command.DeltaWestOnce4Bit, lookWest2);
                             }
                             else
                             {
@@ -291,8 +293,8 @@ namespace PlCompressor
                             {
                                 lookWest.ParameterCount = 1;
                                 CreateCommandEntries(Command.DeltaWestOnce8Bit, lookWest);
-                                lookWest.DeltaList[0] = lookWest.DeltaList[1];
-                                CreateCommandEntries(Command.DeltaWestOnce8Bit, lookWest);
+                                var lookWest2 = new LookAheadReturn() { DeltaList = new List<int>() { lookWest.DeltaList[1] }, ParameterCount = 1 };
+                                CreateCommandEntries(Command.DeltaWestOnce8Bit, lookWest2);
 
                             }
                             else
@@ -316,11 +318,11 @@ namespace PlCompressor
 
                 if (switches.DeltaNorth 
                     && pointer > _imageInfo.Width - 1  // Delta North
-                    && vs[pointer] - vs[pointer - _imageInfo.Width] <= 128
+                    && vs[pointer] - vs[pointer - _imageInfo.Width] < 128
                     && vs[pointer] - vs[pointer - _imageInfo.Width] >= -128)
                 {
                     unchangeable = false;
-                    if (vs[pointer] - vs[pointer - _imageInfo.Width] <= 8 && vs[pointer] - vs[pointer - _imageInfo.Width] >= -8)
+                    if (vs[pointer] - vs[pointer - _imageInfo.Width] < 8 && vs[pointer] - vs[pointer - _imageInfo.Width] >= -8)
                     {
                         var lookNorth = LookAheadDeltaNorth(vs, ref pointer, 4);
 
@@ -335,8 +337,8 @@ namespace PlCompressor
                         {
                             lookNorth.ParameterCount = 1;
                             CreateCommandEntries(Command.DeltaNorthOnce4Bit, lookNorth);
-                            lookNorth.DeltaList[0] = lookNorth.DeltaList[1];
-                            CreateCommandEntries(Command.DeltaNorthOnce4Bit, lookNorth);
+                            var lookNorth2 = new LookAheadReturn() { DeltaList = new List<int>() { lookNorth.DeltaList[1] }, ParameterCount = 1 };
+                            CreateCommandEntries(Command.DeltaNorthOnce4Bit, lookNorth2);
 
                         }
                         else
@@ -364,8 +366,8 @@ namespace PlCompressor
                         {
                             look.ParameterCount = 1;
                             CreateCommandEntries(Command.DeltaNorthOnce8Bit, look);
-                            look.DeltaList[0] = look.DeltaList[1];
-                            CreateCommandEntries(Command.DeltaNorthOnce8Bit, look);
+                            var lookNorth2 = new LookAheadReturn() { DeltaList = new List<int>() { look.DeltaList[1] }, ParameterCount = 1 };
+                            CreateCommandEntries(Command.DeltaNorthOnce8Bit, lookNorth2);
 
                         }
                         else
@@ -602,7 +604,7 @@ namespace PlCompressor
                     _outputFile.AddEntry(new FileEntry()
                     {
                         Command = (byte)(command),
-                        Parameter = (byte)(look.ParameterCount),
+                        Parameter = (byte)(look.ParameterCount - 3),
                         Data = data,
                         Deltas = look.DeltaList,
                         DeltaOffset = 0,
@@ -622,7 +624,7 @@ namespace PlCompressor
                         _outputFile.AddEntry(new FileEntry()
                         {
                             Command = (byte)(command),
-                            Parameter = (byte)parameter,
+                            Parameter = (byte)(parameter - 1),
                             Data = data,
                             Deltas = look.DeltaList,
                             DeltaOffset = (int)(i * (combinations)),
@@ -630,6 +632,17 @@ namespace PlCompressor
                             ParameterLengthInBit = _switches.LongParameterLengthInBits
                         });
                     }
+
+                    string tempDeltas = "";
+                    if(_outputFile.Entries[_outputFile.Entries.Count - 1].Deltas.Count > 0)
+                    {
+                        for(var i = 0; i < _outputFile.Entries[_outputFile.Entries.Count - 1].Deltas.Count; i++)
+                        {
+                            tempDeltas += "\r\n" + _outputFile.Entries[_outputFile.Entries.Count - 1].Deltas[i];
+                        }
+                        
+                    }
+
                 }
                 if (_stats.MaxLengthParameter < look.ParameterCount) _stats.MaxLengthParameter = (uint)look.ParameterCount;
                 _stats.CountParameterCommands++;
@@ -706,7 +719,7 @@ namespace PlCompressor
         private LookAheadReturn LookAheadDeltaNorth(ushort[] image, ref uint pointer, int bitSize)
         {
             var look = new LookAheadReturn();
-            if(pointer < _imageInfo.Width || (!(image[pointer] - image[pointer - _imageInfo.Width] <= 128
+            if(pointer < _imageInfo.Width || (!(image[pointer] - image[pointer - _imageInfo.Width] < 128
                     && image[pointer] - image[pointer - _imageInfo.Width] >= -128)))
             {
                 return new LookAheadReturn() { ParameterCount = 0 };
@@ -715,9 +728,7 @@ namespace PlCompressor
             while (pointer < image.Length - 1)
             {
                 int delta = image[pointer] - image[pointer - _imageInfo.Width];
-                double upperLimit = Math.Pow(2, bitSize - 1);
-                double lowerLimit = -1 * Math.Pow(2, bitSize - 1);
-                if (delta != 0 && delta <= upperLimit && delta >= lowerLimit)
+                if (delta != 0 && delta < Math.Pow(2, bitSize - 1) && delta >= -1 * Math.Pow(2, bitSize - 1))
                 {
                     pointer++;
                     look.ParameterCount++;
@@ -740,7 +751,7 @@ namespace PlCompressor
             while (pointer < image.Length - 1)
             {
                 int delta = image[pointer] - image[pointer - 1];
-                if (delta != 0 && delta <= Math.Pow(2, bitSize - 1) && delta >= -1 * Math.Pow(2, bitSize - 1))
+                if (delta != 0 && delta < Math.Pow(2, bitSize - 1) && delta >= -1 * Math.Pow(2, bitSize - 1))
                 {
                     pointer++;
                     look.ParameterCount++;
@@ -756,26 +767,5 @@ namespace PlCompressor
             return look;
         }
 
-        /*
-        private LookAheadReturn LookAheadLookupTable(ushort[] image, ref uint pointer)
-        {
-            long counter = 0;
-            while (pointer < image.Length - 1)
-            {
-                if (image[pointer] == image[pointer - 1])
-                {
-                    pointer++;
-                    counter++;
-                }
-                else
-                {
-                    pointer--;
-                    break;
-                }
-            }
-            pointer++;
-            return counter;
-        }
-        */
     }
 }

@@ -68,7 +68,8 @@ namespace PlCompressor
 
                     case (uint)Command.CloneWestRepeat:
                         bitLength3 = (uint)sc.BsParameter.ReadUnsigned(1);
-                        commandRepetitions = (int)sc.BsParameter.ReadUnsigned(bitLength3 == 1 ? header.ShortParameterLengthInBits + 3 : header.LongParameterLengthInBits);
+                        commandRepetitions = bitLength3 == 1 ? (int)sc.BsParameter.ReadUnsigned(header.ShortParameterLengthInBits) + 3
+                                                             : (int)sc.BsParameter.ReadUnsigned(header.LongParameterLengthInBits) + 1;
                         tempVal = output[outputPointer - 1];
                         for (int rep = 0; rep < commandRepetitions; rep++)
                         {
@@ -83,7 +84,8 @@ namespace PlCompressor
 
                     case (uint)Command.CloneNorthRepeat:
                         bitLength3 = (uint)sc.BsParameter.ReadUnsigned(1);
-                        commandRepetitions = (int)sc.BsParameter.ReadUnsigned(bitLength3 == 1 ? header.ShortParameterLengthInBits + 3 : header.LongParameterLengthInBits);
+                        commandRepetitions = bitLength3 == 1 ? (int)sc.BsParameter.ReadUnsigned(header.ShortParameterLengthInBits) + 3
+                                                             : (int)sc.BsParameter.ReadUnsigned(header.LongParameterLengthInBits) + 1;
                         tempVal = output[outputPointer - header.ImageWidth];
                         for (int rep = 0; rep < commandRepetitions; rep++)
                         {
@@ -92,18 +94,20 @@ namespace PlCompressor
                         break;  
 
                     case (uint)Command.DeltaWestOnce4Bit:
-                        output[outputPointer] = (ushort)(output[outputPointer - 1] + (ushort)sc.BsData.ReadSigned(4));
+                        var deltaTemp = sc.BsData.ReadSigned(4);
+                        output[outputPointer] = (ushort)((output[outputPointer - 1] + deltaTemp));
                         outputPointer++;
                         break;
 
                     case (uint)Command.DeltaWestOnce8Bit:
-                        output[outputPointer] = (ushort)(output[outputPointer - 1] + sc.BsData.ReadSigned(8));
+                        output[outputPointer] = (ushort)((output[outputPointer - 1] + sc.BsData.ReadSigned(8)));
                         outputPointer++;
                         break;
 
                     case (uint)Command.DeltaWestRepeat4Bit:
                         bitLength3 = (uint)sc.BsParameter.ReadUnsigned(1);
-                        commandRepetitions = (int)sc.BsParameter.ReadUnsigned(bitLength3 == 1 ? header.ShortParameterLengthInBits + 3 : header.LongParameterLengthInBits);
+                        commandRepetitions = bitLength3 == 1 ? (int)sc.BsParameter.ReadUnsigned(header.ShortParameterLengthInBits) + 3
+                                                             : (int)sc.BsParameter.ReadUnsigned(header.LongParameterLengthInBits) + 1;
                         for (int rep = 0; rep < commandRepetitions; rep++)
                         {
                             int delta = (int)sc.BsData.ReadSigned(4);
@@ -114,7 +118,8 @@ namespace PlCompressor
                         
                     case (uint)Command.DeltaWestRepeat8Bit:
                         bitLength3 = (uint)sc.BsParameter.ReadUnsigned(1);
-                        commandRepetitions = (int)sc.BsParameter.ReadUnsigned(bitLength3 == 1 ? header.ShortParameterLengthInBits + 3 : header.LongParameterLengthInBits);
+                        commandRepetitions = bitLength3 == 1 ? (int)sc.BsParameter.ReadUnsigned(header.ShortParameterLengthInBits) + 3
+                                                             : (int)sc.BsParameter.ReadUnsigned(header.LongParameterLengthInBits) + 1;
                         for (int rep = 0; rep < commandRepetitions; rep++)
                         {
                             int delta = (int)sc.BsData.ReadSigned(8);
@@ -124,18 +129,19 @@ namespace PlCompressor
                         break;
 
                     case (uint)Command.DeltaNorthOnce4Bit:
-                        output[outputPointer] = (ushort)(output[outputPointer - header.ImageWidth] + (ushort)sc.BsData.ReadSigned(4));
+                        output[outputPointer] = (ushort)((output[outputPointer - header.ImageWidth] + sc.BsData.ReadSigned(4)));
                         outputPointer++;
                         break;
 
                     case (uint)Command.DeltaNorthOnce8Bit:
-                        output[outputPointer] = (ushort)(output[outputPointer - header.ImageWidth] + sc.BsData.ReadSigned(8));
+                        output[outputPointer] = (ushort)((output[outputPointer - header.ImageWidth] + sc.BsData.ReadSigned(8)));
                         outputPointer++;
                         break;
 
                     case (uint)Command.DeltaNorthRepeat4Bit:
                         bitLength3 = (uint)sc.BsParameter.ReadUnsigned(1);
-                        commandRepetitions = (int)sc.BsParameter.ReadUnsigned(bitLength3 == 1 ? header.ShortParameterLengthInBits + 3 : header.LongParameterLengthInBits);
+                        commandRepetitions = bitLength3 == 1 ? (int)sc.BsParameter.ReadUnsigned(header.ShortParameterLengthInBits) + 3
+                                                             : (int)sc.BsParameter.ReadUnsigned(header.LongParameterLengthInBits) + 1;
                         for (int rep = 0; rep < commandRepetitions; rep++)
                         {
                             int delta = (int)sc.BsData.ReadSigned(4);
@@ -146,7 +152,8 @@ namespace PlCompressor
 
                     case (uint)Command.DeltaNorthRepeat8Bit:
                         bitLength3 = (uint)sc.BsParameter.ReadUnsigned(1);
-                        commandRepetitions = (int)sc.BsParameter.ReadUnsigned(bitLength3 == 1 ? header.ShortParameterLengthInBits + 3 : header.LongParameterLengthInBits);
+                        commandRepetitions = bitLength3 == 1 ? (int)sc.BsParameter.ReadUnsigned(header.ShortParameterLengthInBits) + 3
+                                                             : (int)sc.BsParameter.ReadUnsigned(header.LongParameterLengthInBits) + 1;
                         for (int rep = 0; rep < commandRepetitions; rep++)
                         {
                             int delta = (int)sc.BsData.ReadSigned(8);

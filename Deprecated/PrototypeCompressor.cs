@@ -165,12 +165,12 @@ namespace PlCompressor
                 }
 
                 else if (switches.DeltaWest 
-                    && vs[pointer] - vs[pointer - 1] <= 128 
+                    && vs[pointer] - vs[pointer - 1] < 128 
                     && vs[pointer] - vs[pointer - 1] >= -128)  // Delta West
                 {
                     unchangeable = false;
                     long lengthDeltas;
-                    if (vs[pointer] - vs[pointer - 1] <= 8 && vs[pointer] - vs[pointer - 1] >= -8)
+                    if (vs[pointer] - vs[pointer - 1] < 8 && vs[pointer] - vs[pointer - 1] >= -8)
                     {
                         lengthDeltas = LookAheadDeltaWest(vs, ref pointer, 4);
                         if (lengthDeltas == 1)
@@ -526,7 +526,7 @@ namespace PlCompressor
                 int delta = image[pointer] - image[pointer - _imageInfo.Width];
                 double upperLimit = Math.Pow(2, bitSize - 1);
                 double lowerLimit = -1 * Math.Pow(2, bitSize - 1);
-                if (delta != 0 && delta <= upperLimit && delta >= lowerLimit)
+                if (delta != 0 && delta < upperLimit && delta >= lowerLimit)
                 {
                     pointer++;
                     counter++;
@@ -548,7 +548,7 @@ namespace PlCompressor
             while (pointer < image.Length - 1)
             {
                 int delta = image[pointer] - image[pointer - 1];
-                if (delta != 0 && delta <= Math.Pow(2, bitSize - 1) && delta >= -1 * Math.Pow(2, bitSize - 1))
+                if (delta != 0 && delta < Math.Pow(2, bitSize - 1) && delta >= -1 * Math.Pow(2, bitSize - 1))
                 {
                     pointer++;
                     counter++;

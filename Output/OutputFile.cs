@@ -85,6 +85,8 @@ namespace PlCompressor.Output
             {
                 tempCounter++;
                 _sc.BsCommand.WriteUnsigned(4, entry.Command);
+                int extraToParameter = entry.ParameterLength3BitElse8Bit == 1 ? 3 : 1;
+
                 switch (entry.Command)
                 {
                     /*
@@ -107,7 +109,6 @@ namespace PlCompressor.Output
                         Unchanged
                      */
 
-                    
                     case (byte)Command.CloneWestOnce:
                     case (byte)Command.CloneNorthOnce:
                         _stats.Bits += _bitLengthCommand;
@@ -133,7 +134,7 @@ namespace PlCompressor.Output
                     case (byte)Command.DeltaWestRepeat4Bit:
                         _sc.BsParameter.WriteUnsigned(1, entry.ParameterLength3BitElse8Bit);
                         _sc.BsParameter.WriteUnsigned(entry.ParameterLengthInBit, entry.Parameter);
-                        for (int i = entry.DeltaOffset; i < entry.DeltaOffset + entry.Parameter; i++)
+                        for (int i = entry.DeltaOffset; i < entry.DeltaOffset + entry.Parameter + extraToParameter; i++)
                         {
                             _sc.BsData.WriteSigned(4, entry.Deltas[i]);
                         }
@@ -143,7 +144,7 @@ namespace PlCompressor.Output
                     case (byte)Command.DeltaWestRepeat8Bit:
                         _sc.BsParameter.WriteUnsigned(1, entry.ParameterLength3BitElse8Bit);
                         _sc.BsParameter.WriteUnsigned(entry.ParameterLengthInBit, entry.Parameter);
-                        for (int i = entry.DeltaOffset; i < entry.DeltaOffset + entry.Parameter; i++)
+                        for (int i = entry.DeltaOffset; i < entry.DeltaOffset + entry.Parameter + extraToParameter; i++)
                         {
                             _sc.BsData.WriteSigned(8, entry.Deltas[i]);
                         }
@@ -163,7 +164,7 @@ namespace PlCompressor.Output
                     case (byte)Command.DeltaNorthRepeat4Bit:
                         _sc.BsParameter.WriteUnsigned(1, entry.ParameterLength3BitElse8Bit);
                         _sc.BsParameter.WriteUnsigned(entry.ParameterLengthInBit, entry.Parameter);
-                        for (int i = entry.DeltaOffset; i < entry.DeltaOffset + entry.Parameter; i++)
+                        for (int i = entry.DeltaOffset; i < entry.DeltaOffset + entry.Parameter + extraToParameter; i++)
                         {
                             _sc.BsData.WriteSigned(4, entry.Deltas[i]);
                         }
@@ -173,7 +174,7 @@ namespace PlCompressor.Output
                     case (byte)Command.DeltaNorthRepeat8Bit:
                         _sc.BsParameter.WriteUnsigned(1, entry.ParameterLength3BitElse8Bit);
                         _sc.BsParameter.WriteUnsigned(entry.ParameterLengthInBit, entry.Parameter);
-                        for (int i = entry.DeltaOffset; i < entry.DeltaOffset + entry.Parameter; i++)
+                        for (int i = entry.DeltaOffset; i < entry.DeltaOffset + entry.Parameter + extraToParameter; i++)
                         {
                             _sc.BsData.WriteSigned(8, entry.Deltas[i]);
                         }
@@ -182,7 +183,7 @@ namespace PlCompressor.Output
 
 
                     case (byte)Command.Lookup4Bit:
-                        if(_unchangedInformation[entry.Data].RankInTopNList > 170)
+                        if(_unchangedInformation[entry.Data].RankInTopNList > 176)
                         {
                             Console.WriteLine("Problem");
                         }
@@ -191,7 +192,7 @@ namespace PlCompressor.Output
                     break;
                    
                     case (byte)Command.Lookup8Bit:
-                        if (_unchangedInformation[entry.Data].RankInTopNList > 170)
+                        if (_unchangedInformation[entry.Data].RankInTopNList > 176)
                         {
                             Console.WriteLine("Problem");
                         }
@@ -200,7 +201,7 @@ namespace PlCompressor.Output
                         break;
                     
                     case (byte)Command.Lookup12Bit:
-                        if (_unchangedInformation[entry.Data].RankInTopNList > 170)
+                        if (_unchangedInformation[entry.Data].RankInTopNList > 176)
                         {
                             Console.WriteLine("Problem");
                         }
