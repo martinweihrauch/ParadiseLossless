@@ -37,6 +37,12 @@ namespace PlCompressor
                 ushort tempVal = 0;
                 uint index = 0;
 
+                if (outputPointer > 261911)
+                {
+                    int testStop = 5;
+                }
+
+
                 switch (command)
                 {
                     /*
@@ -60,7 +66,6 @@ namespace PlCompressor
                      */
 
 
-
                     case (uint)Command.CloneWestOnce:
                         output[outputPointer] = output[outputPointer - 1];
                         outputPointer++;
@@ -70,10 +75,10 @@ namespace PlCompressor
                         bitLength3 = (uint)sc.BsParameter.ReadUnsigned(1);
                         commandRepetitions = bitLength3 == 1 ? (int)sc.BsParameter.ReadUnsigned(header.ShortParameterLengthInBits) + 3
                                                              : (int)sc.BsParameter.ReadUnsigned(header.LongParameterLengthInBits) + 1;
-                        tempVal = output[outputPointer - 1];
                         for (int rep = 0; rep < commandRepetitions; rep++)
                         {
-                            output[outputPointer++] = tempVal;
+                            output[outputPointer] = output[outputPointer - 1];
+                            outputPointer++;
                         }
                         break;
 
@@ -86,10 +91,10 @@ namespace PlCompressor
                         bitLength3 = (uint)sc.BsParameter.ReadUnsigned(1);
                         commandRepetitions = bitLength3 == 1 ? (int)sc.BsParameter.ReadUnsigned(header.ShortParameterLengthInBits) + 3
                                                              : (int)sc.BsParameter.ReadUnsigned(header.LongParameterLengthInBits) + 1;
-                        tempVal = output[outputPointer - header.ImageWidth];
                         for (int rep = 0; rep < commandRepetitions; rep++)
                         {
-                            output[outputPointer++] = tempVal;
+                            output[outputPointer] = output[outputPointer - header.ImageWidth];
+                            outputPointer++;
                         }
                         break;  
 
@@ -164,34 +169,21 @@ namespace PlCompressor
 
                     case (uint)Command.Lookup4Bit:
                         index = (ushort)sc.BsData.ReadUnsigned(4);
-                        if (index > 176)
-                        {
-                            CreateProblemList(output, outputPointer);
-                            Console.WriteLine("Problem");
-                        }
+                        
                         output[outputPointer] = sc.GetUshortFromByteLookUpTableArray(index);
                         outputPointer++;
                         break;
 
                     case (uint)Command.Lookup8Bit:
                         index = (ushort)(sc.BsData.ReadUnsigned(8) + 16);
-                        if (index > 176)
-                        {
-                            CreateProblemList(output, outputPointer);
-
-                            Console.WriteLine("Problem");
-                        }
+                       
                         output[outputPointer] = sc.GetUshortFromByteLookUpTableArray(index);
                         outputPointer++;
                         break;
                     
                     case (uint)Command.Lookup12Bit:
                         index = (ushort)(sc.BsData.ReadUnsigned(12) + 272);
-                        if (index > 176)
-                        {
-                            CreateProblemList(output, outputPointer);
-                            Console.WriteLine("Problem");
-                        }
+                       
                         output[outputPointer] = sc.GetUshortFromByteLookUpTableArray(index);
                         outputPointer++;
                         break;

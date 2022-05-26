@@ -78,6 +78,20 @@ namespace PlCompressor
             }
             _imageInfo = imageInfo;
             ushort[] vs = new ushort[(int)Math.Ceiling(((float)image.Length)/2)];
+            bool unchangeable = false;
+            var unchangedList = new Dictionary<int, int>();
+
+
+            for (var i = 0; i < image.Length - 1; i += 2)
+            {
+                int byte1 = image[i];
+                int byte2 = image[i + 1];
+                int res = byte2 << 8;
+                int res2 = res + byte1;
+                vs[i / 2] = (ushort)(res2);
+                
+            }
+            /*
 
             for (int i = 0, j = 0; i < image.Length; i++)
             {
@@ -93,19 +107,32 @@ namespace PlCompressor
                     j++;
                 }
             }
-
+            */
             uint pointer = 0;
 
-            CreateCommandEntries(Command.Unchanged, new LookAheadReturn() { ParameterCount = 1}, vs[pointer]);
+            int keyInOutputFile = CreateCommandEntries(Command.Unchanged, new LookAheadReturn() { ParameterCount = 1}, vs[pointer]);
+            _unchangedInformation.Add(vs[pointer], new UnchangedFile()
+            {
+                Frequency = 1,
+                KeyOfFileInOutputFileList = (uint)keyInOutputFile,
+            });
+        
+
+            unchangeable = true;
+            _numberOfUnchangeableValues++;
+            _unchangedCount++;
+            unchangedList.Add(vs[pointer], 1);
             pointer++;
 
             // Loop through ushort array
-            bool unchangeable = false;
             
-            var unchangedList = new Dictionary<int, int>();
-
             while (pointer < vs.Length)
             {
+
+                if(pointer > 261911)
+                {
+                    int testStop = 5;
+                }
 
                 /*
                  * CLONE WEST
@@ -389,7 +416,7 @@ namespace PlCompressor
                     * UNCHANGED DATA --> LOOKUP TABLE
                     */
                     var look = new LookAheadReturn() { ParameterCount = 1 };
-                    int keyInOutputFile = CreateCommandEntries(Command.Unchanged, look, vs[pointer]);
+                    keyInOutputFile = CreateCommandEntries(Command.Unchanged, look, vs[pointer]);
 
                     if (_unchangedInformation.ContainsKey(vs[pointer]))
                     {
@@ -650,7 +677,7 @@ namespace PlCompressor
             }
             return _outputFile.Entries.Count() - 1;
         }
-
+        /*
         private long LookAheadForCloneable(ushort[] image, ref uint pointer)
         {
             long westPointer = pointer;
@@ -675,11 +702,11 @@ namespace PlCompressor
             }
             return -1; //None found that matches          
         }
-
+        */
         private static LookAheadReturn LookAheadCloneWest(ushort[] image, ref uint pointer)
         {
             var look = new LookAheadReturn();
-            while (pointer < image.Length - 1)
+            while (pointer < image.Length)
             {
                 if(image[pointer] == image[pointer - 1])
                 {
@@ -699,8 +726,11 @@ namespace PlCompressor
         private LookAheadReturn LookAheadCloneNorth(ushort[] image, ref uint pointer)
         {
             var look = new LookAheadReturn();
-            while (pointer < image.Length - 1)
+            while (pointer < image.Length)
             {
+                var tempPointer = pointer;
+                var tempValue = image[pointer];
+                var tempValueBefore = image[pointer - _imageInfo.Width];
                 if (image[pointer] == image[pointer - _imageInfo.Width])
                 {
                     pointer++;
@@ -725,7 +755,7 @@ namespace PlCompressor
                 return new LookAheadReturn() { ParameterCount = 0 };
             }
 
-            while (pointer < image.Length - 1)
+            while (pointer < image.Length)
             {
                 int delta = image[pointer] - image[pointer - _imageInfo.Width];
                 if (delta != 0 && delta < Math.Pow(2, bitSize - 1) && delta >= -1 * Math.Pow(2, bitSize - 1))
@@ -748,7 +778,7 @@ namespace PlCompressor
         {
             var look = new LookAheadReturn();
 
-            while (pointer < image.Length - 1)
+            while (pointer < image.Length)
             {
                 int delta = image[pointer] - image[pointer - 1];
                 if (delta != 0 && delta < Math.Pow(2, bitSize - 1) && delta >= -1 * Math.Pow(2, bitSize - 1))
